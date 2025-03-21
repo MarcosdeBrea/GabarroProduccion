@@ -73,21 +73,24 @@
       color: var(--secondary-color);
     }
 
+    /* Ajuste de los radios */
     .radios {
       display: flex;
-      gap: 20px;
+      flex-wrap: wrap;         /* Para que salten de línea si no cabe */
+      gap: 8px;                /* Menos espacio entre cada opción */
       margin-bottom: 20px;
+      align-items: center;     /* Centra verticalmente los radios */
     }
 
     .radios label {
-      display: flex;
+      display: inline-flex;    /* Radio y texto se mantienen juntos */
       align-items: center;
       font-weight: bold;
       cursor: pointer;
     }
 
     .radios input[type="radio"] {
-      margin-right: 5px;
+      margin-right: 5px;       /* Pequeño espacio entre el círculo y el texto */
     }
 
     .important-note {
@@ -275,7 +278,8 @@
         gap: 10px;
       }
 
-      .title-container, .logo-container {
+      .title-container,
+      .logo-container {
         width: 100%;
         text-align: center;
       }
@@ -292,9 +296,9 @@
         grid-template-columns: 1fr;
       }
 
+      /* Mantén el flex-wrap y reduce el gap si quieres */
       .radios {
-        flex-direction: column;
-        gap: 10px;
+        gap: 8px; 
       }
 
       th, td {
