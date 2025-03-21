@@ -1,0 +1,27 @@
+.radios {
+  display: flex;
+  flex-wrap: wrap;       /* Para que salten de línea si no cabe */
+  gap: 8px;              /* Menos espacio entre cada opción */
+  margin-bottom: 20px;
+  align-items: center;   /* Centra verticalmente los radios con el texto */
+}
+
+.radios label {
+  display: inline-flex; 
+  align-items: center;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.radios input[type="radio"] {
+  margin-right: 5px;     /* Pequeño margen para separar el botón de la etiqueta */
+}
+
+/* Ejemplo de media query si quieres un estilo específico en pantallas muy pequeñas */
+/* @media (max-width: 768px) {
+  .radios {
+    // Si quieres mantenerlos en una sola línea, no pongas flex-direction: column
+    // Simplemente mantén flex-wrap y reduce un poco el gap si quieres
+    gap: 5px; 
+  }
+} */
