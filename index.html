@@ -653,6 +653,18 @@
 
       function applyExcelStyles(ws, totalRows) {
         const range = XLSX.utils.decode_range(ws["!ref"]);
+        
+        // Configurar anchos de columna
+        ws['!cols'] = [
+          { wch: 14 },  // Canteado
+          { wch: 20 },  // Referencia
+          { wch: 25 },  // Material
+          { wch: 10 },  // Grueso
+          { wch: 15 },  // Largo
+          { wch: 12 },  // Ancho
+          { wch: 10 }   // Unidades
+        ];
+        
         for (let R = range.s.r; R <= range.e.r; R++) {
           for (let C = range.s.c; C <= range.e.c; C++) {
             const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
@@ -660,7 +672,7 @@
             if (!cell) continue;
             cell.s = cell.s || {};
 
-            // Bordes finos
+            // Bordes finos para todas las celdas
             cell.s.border = {
               top:    { style: "thin", color: { rgb: "000000" } },
               bottom: { style: "thin", color: { rgb: "000000" } },
@@ -668,12 +680,30 @@
               right:  { style: "thin", color: { rgb: "000000" } },
             };
 
-            // Encabezado
-            if (R === 0 || R === 7) {
+            // Estilos para las filas de título (filas 0-5 para datos del cliente y la fila 7 para encabezados de tabla)
+            if (R <= 5 || R === 7) {
+              // Negrita para todos los títulos
               cell.s.font = { bold: true };
+              
+              // Color verde para las celdas de título
+              if (C === 0 || R === 7) {
+                cell.s.fill = { 
+                  fgColor: { rgb: "D1E7CB" },  // Color verde claro que coincide con --header-bg
+                  type: "pattern", 
+                  patternType: "solid" 
+                };
+              }
+              
+              // Alineación para títulos
               cell.s.alignment = { horizontal: "center", vertical: "center" };
             } else {
+              // Alineación para datos
               cell.s.alignment = { vertical: "center" };
+              
+              // Centrar números
+              if (C >= 3) { // Columnas numéricas (grueso, largo, ancho, unidades)
+                cell.s.alignment.horizontal = "center";
+              }
             }
           }
         }
@@ -682,4 +712,3 @@
   </script>
 </body>
 </html>
-
