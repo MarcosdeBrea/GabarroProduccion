@@ -1,27 +1,685 @@
-.radios {
-  display: flex;
-  flex-wrap: wrap;       /* Para que salten de línea si no cabe */
-  gap: 8px;              /* Menos espacio entre cada opción */
-  margin-bottom: 20px;
-  align-items: center;   /* Centra verticalmente los radios con el texto */
-}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plantilla producción</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #6AAB64;
+      --secondary-color: #557C52;
+      --text-color: #333;
+      --light-bg: #f8f9fa;
+      --border-color: #ddd;
+      --header-bg: #D1E7CB;
+      --red-text: #CC0000;
+    }
 
-.radios label {
-  display: inline-flex; 
-  align-items: center;
-  font-weight: bold;
-  cursor: pointer;
-}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-.radios input[type="radio"] {
-  margin-right: 5px;     /* Pequeño margen para separar el botón de la etiqueta */
-}
+    body {
+      background-color: var(--light-bg);
+      color: var(--text-color);
+      padding: 5px; /* Borde mínimo en el body */
+    }
 
-/* Ejemplo de media query si quieres un estilo específico en pantallas muy pequeñas */
-/* @media (max-width: 768px) {
-  .radios {
-    // Si quieres mantenerlos en una sola línea, no pongas flex-direction: column
-    // Simplemente mantén flex-wrap y reduce un poco el gap si quieres
-    gap: 5px; 
-  }
-} */
+    .container {
+      width: 98%; /* Aprovecha 98% de pantalla */
+      margin: 0 auto;
+      background-color: white;
+      padding: 5px; /* Reducir padding interno */
+      border-radius: 5px; /* Borde mínimo */
+    }
+
+    /* Cabecera con flex */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    /* Título a la izquierda */
+    .title-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .main-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    /* Logo a la derecha */
+    .logo-container {
+      text-align: right;
+    }
+
+    .logo-text {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--text-color);
+      margin-bottom: 5px;
+    }
+
+    .website {
+      color: var(--secondary-color);
+    }
+
+    /* Ajuste de los radios */
+    .radios {
+      display: flex;
+      flex-wrap: wrap;         /* Para que salten de línea si no cabe */
+      gap: 8px;                /* Menos espacio entre cada opción */
+      margin-bottom: 20px;
+      align-items: center;     /* Centra verticalmente los radios */
+    }
+
+    .radios label {
+      display: inline-flex;    /* Radio y texto se mantienen juntos */
+      align-items: center;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .radios input[type="radio"] {
+      margin-right: 5px;       /* Pequeño espacio entre el círculo y el texto */
+    }
+
+    .important-note {
+      text-align: center;
+      margin: 15px 0;
+      font-weight: bold;
+      color: var(--red-text);
+    }
+
+    .form-header {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: var(--light-bg);
+      border-radius: 5px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .required-field::after {
+      content: "*";
+      color: var(--red-text);
+      margin-left: 4px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: var(--header-bg);
+      color: var(--text-color);
+    }
+
+    /* Relación de anchos de columnas */
+    th.canteado {
+      width: 10%;
+    }
+    th.referencia {
+      width: 24%;
+    }
+    th.material {
+      width: 29%;
+    }
+    th.grueso {
+      width: 7%;
+    }
+    th.largo,
+    th.ancho {
+      width: 8%;
+    }
+    th.unidades {
+      width: 8%;
+    }
+    th.delete-col {
+      width: 4%;
+    }
+
+    tr:nth-child(even) {
+      background-color: var(--light-bg);
+    }
+
+    /* Botón para eliminar cada fila */
+    .delete-row-btn {
+      background: none;
+      border: none;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--red-text);
+      cursor: pointer;
+    }
+
+    /* Botones principales */
+    .buttons-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 30px;
+      margin-bottom: 20px;
+    }
+
+    .buttons-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .add-row,
+    .clear-table,
+    .submit-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    .add-row:hover,
+    .clear-table:hover,
+    .submit-btn:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .leyenda {
+      display: inline-block;
+      width: auto;
+      background-color: #f9f9f9;
+      border: 1px solid var(--border-color);
+      padding: 15px;
+      border-radius: 4px;
+      min-width: 100px; 
+    }
+
+    .leyenda h3 {
+      margin-bottom: 10px;
+      color: var(--primary-color);
+    }
+
+    .leyenda ul {
+      list-style-type: none;
+      padding-left: 10px;
+    }
+    .leyenda li {
+      margin-bottom: 5px;
+      font-size: 8px;
+    }
+
+    .small-text {
+      font-size: 12px;
+      font-style: italic;
+      color: #666;
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .container {
+        width: 98%;
+        padding: 5px;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .title-container,
+      .logo-container {
+        width: 100%;
+        text-align: center;
+      }
+
+      .main-title {
+        font-size: 1.3rem;
+      }
+
+      .logo-text {
+        font-size: 1.5rem;
+      }
+
+      .form-header {
+        grid-template-columns: 1fr;
+      }
+
+      /* Mantén el flex-wrap y reduce el gap si quieres */
+      .radios {
+        gap: 8px; 
+      }
+
+      th, td {
+        padding: 8px;
+        font-size: 14px;
+      }
+
+      th .small-text {
+        font-size: 10px;
+      }
+
+      td input, td select {
+        padding: 8px;
+        font-size: 14px;
+      }
+
+      .buttons-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .buttons-row {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .add-row, .clear-table, .submit-btn {
+        width: 100%;
+        padding: 12px 10px;
+        font-size: 15px;
+      }
+
+      .leyenda {
+        width: 100%;
+      }
+
+      .leyenda li {
+        font-size: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 5px;
+      }
+
+      .container {
+        padding: 5px;
+      }
+
+      .main-title {
+        font-size: 1.2rem;
+      }
+
+      .logo-text {
+        font-size: 1.4rem;
+      }
+
+      th, td {
+        padding: 6px;
+        font-size: 12px;
+      }
+
+      td input, td select {
+        padding: 6px;
+        font-size: 12px;
+      }
+
+      .add-row, .clear-table, .submit-btn {
+        padding: 10px 8px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Estructura de cabecera -->
+    <div class="header">
+      <div class="title-container">
+        <h1 class="main-title">Plantilla producción</h1>
+      </div>
+      <div class="logo-container">
+        <div class="logo-text">GABARRÓ</div>
+        <div class="website">www.gabarro.com</div>
+      </div>
+    </div>
+
+    <!-- Radios -->
+    <div class="radios">
+      <label>
+        <input type="radio" name="tipoPedido" value="Pedido" checked />
+        Pedido
+      </label>
+      <label>
+        <input type="radio" name="tipoPedido" value="Solicitud de presupuesto" />
+        Presupuesto
+      </label>
+    </div>
+
+    <form id="corteForm">
+      <!-- Datos del cliente -->
+      <div class="form-header">
+        <div class="form-group">
+          <label for="nombre" class="required-field">Nombre:</label>
+          <input type="text" id="nombre" name="nombre" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="required-field">Email:</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="codigoCliente">Código Cliente:</label>
+          <input type="text" id="codigoCliente" name="codigoCliente" />
+        </div>
+
+        <div class="form-group">
+          <label for="telefono" class="required-field">Teléfono:</label>
+          <input type="tel" id="telefono" name="telefono" required />
+        </div>
+
+        <div class="form-group">
+          <label for="fecha">Fecha:</label>
+          <input type="text" id="fecha" name="fecha" readonly />
+        </div>
+      </div>
+
+      <!-- Nota importante -->
+      <div class="important-note">
+        El LARGO es siempre la primera cota. El ANCHO es siempre la segunda cota.
+      </div>
+
+      <!-- Contenedor de la tabla -->
+      <div class="table-container">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th class="canteado">
+                Canteado
+                <br />
+                <span class="small-text">Seleccionar lados a cantear</span>
+              </th>
+              <th class="referencia">
+                (Ref., pieza, zona...etc)
+                <br />
+                <span class="small-text">En etiqueta (opcional)</span>
+              </th>
+              <th class="material">Material</th>
+              <th class="grueso">Grueso</th>
+              <th class="largo">
+                Largo
+                <br />
+                <span class="small-text">Sentido veta (MM)</span>
+              </th>
+              <th class="ancho">
+                Ancho
+                <br />
+                <span class="small-text">(MM)</span>
+              </th>
+              <th class="unidades">
+                Unidades
+                <br />
+                <span class="small-text">Cantidad</span>
+              </th>
+              <th class="delete-col"></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td>
+                <select name="canteado[]">
+                  <option value="">-</option>
+                  <option value="SIN CANTO">SIN CANTO</option>
+                  <option value="1CL 1CA">1CL 1CA</option>
+                  <option value="1CL 2CA">1CL 2CA</option>
+                  <option value="2CL">2CL</option>
+                  <option value="2CL 1CA">2CL 1CA</option>
+                  <option value="1CL">1CL</option>
+                  <option value="4C">4C</option>
+                  <option value="1CA">1CA</option>
+                  <option value="2CA">2CA</option>
+                </select>
+              </td>
+              <td><input type="text" name="referencia[]" /></td>
+              <td><input type="text" name="material[]" /></td>
+              <td><input type="number" name="grueso[]" min="0" max="9999" /></td>
+              <td><input type="number" name="largo[]" min="0" max="9999" /></td>
+              <td><input type="number" name="ancho[]" min="0" max="9999" /></td>
+              <td><input type="number" name="unidades[]" min="1" max="9999" value="1" /></td>
+              <td><button type="button" class="delete-row-btn">-</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Botones + Leyenda -->
+      <div class="buttons-wrapper">
+        <!-- Botones -->
+        <div class="buttons-row">
+          <button type="button" class="add-row" id="addRow">Añadir Fila</button>
+          <button type="button" class="clear-table" id="clearTableBtn">Limpiar Tabla</button>
+          <button type="button" class="submit-btn" id="submitBtn">Generar y Descargar Excel</button>
+        </div>
+        <!-- Leyenda -->
+        <div class="leyenda">
+          <h3>Leyenda canteado</h3>
+          <ul>
+            <li>1CL 1CA = 1 CANTO LARGO 1 CANTO ANCHO</li>
+            <li>1CL 2CA = 1 CANTO LARGO 2 CANTOS ANCHOS</li>
+            <li>2CL = 2 CANTOS LARGOS</li>
+            <li>2CL 1CA = 2 CANTOS LARGOS 1 CANTO ANCHO</li>
+            <li>1CL = 1 CANTO LARGO</li>
+            <li>4CL = 4 CANTOS LARGOS</li>
+            <li>1CA = 1 CANTO ANCHO</li>
+            <li>2CA = 2 CANTOS ANCHOS</li>
+          </ul>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="footer">
+    <p>Copyright © 2023 Gabarró. Todos los derechos reservados.</p>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Establecer la fecha actual
+      const today = new Date();
+      const formattedDate = today.toLocaleDateString("es-ES");
+      document.getElementById("fecha").value = formattedDate;
+
+      // Añadir fila
+      document.getElementById("addRow").addEventListener("click", function () {
+        const tableBody = document.getElementById("tableBody");
+        const newRow = document.createElement("tr");
+
+        newRow.innerHTML = `
+          <td>
+            <select name="canteado[]">
+                <option value="">-</option>
+                <option value="SIN CANTO">SIN CANTO</option>
+                <option value="1CL 1CA">1CL 1CA</option>
+                <option value="1CL 2CA">1CL 2CA</option>
+                <option value="2CL">2CL</option>
+                <option value="2CL 1CA">2CL 1CA</option>
+                <option value="1CL">1CL</option>
+                <option value="4C">4C</option>
+                <option value="1CA">1CA</option>
+                <option value="2CA">2CA</option>
+            </select>
+          </td>
+          <td><input type="text" name="referencia[]"></td>
+          <td><input type="text" name="material[]"></td>
+          <td><input type="number" name="grueso[]" min="0" max="9999"></td>
+          <td><input type="number" name="largo[]" min="0" max="9999"></td>
+          <td><input type="number" name="ancho[]" min="0" max="9999"></td>
+          <td><input type="number" name="unidades[]" min="1" max="9999" value="1"></td>
+          <td><button type="button" class="delete-row-btn">-</button></td>
+        `;
+        tableBody.appendChild(newRow);
+      });
+
+      // Borrar fila
+      document.addEventListener("click", function(e) {
+        if(e.target && e.target.classList.contains("delete-row-btn")) {
+          e.target.closest("tr").remove();
+        }
+      });
+
+      // Limpiar tabla
+      document.getElementById("clearTableBtn").addEventListener("click", function() {
+        const tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+      });
+
+      // Generar y descargar Excel
+      document.getElementById("submitBtn").addEventListener("click", function () {
+        // Validar campos obligatorios
+        const nombre = document.getElementById("nombre").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const telefono = document.getElementById("telefono").value.trim();
+        const codigo = document.getElementById("codigoCliente").value.trim();
+
+        // Determinar tipo
+        const tipoRadio = document.querySelector('input[name="tipoPedido"]:checked');
+        const tipo = tipoRadio ? tipoRadio.value : "Pedido";
+
+        if (!nombre || !email || !telefono) {
+          alert("Por favor, complete los campos obligatorios: Nombre, Email y Teléfono.");
+          return;
+        }
+
+        // Crear libro de Excel
+        const wb = XLSX.utils.book_new();
+
+        // Datos a volcar en la hoja
+        const finalData = [];
+
+        // 1) Fila con el tipo
+        finalData.push(["Tipo", tipo]);
+        // 2) Datos del cliente
+        finalData.push(["Fecha", formattedDate]);
+        finalData.push(["Nombre", nombre]);
+        finalData.push(["Email", email]);
+        finalData.push(["Código Cliente", codigo]);
+        finalData.push(["Teléfono", telefono]);
+        // Fila en blanco
+        finalData.push([]);
+        // Encabezado
+        finalData.push(["Canteado","Referencia","Material","Grueso","Largo (Sentido veta)","Ancho (MM)","Unidades"]);
+
+        // Recorrer las filas
+        const rows = document.querySelectorAll("#tableBody tr");
+        rows.forEach((row) => {
+          const cells = row.querySelectorAll("td");
+          if (cells.length >= 7) {
+            const canteado   = cells[0].querySelector("select")?.value || "";
+            const referencia = cells[1].querySelector("input")?.value || "";
+            const material   = cells[2].querySelector("input")?.value || "";
+            const grueso     = cells[3].querySelector("input")?.value || "";
+            const largo      = cells[4].querySelector("input")?.value || "";
+            const ancho      = cells[5].querySelector("input")?.value || "";
+            const unidades   = cells[6].querySelector("input")?.value || "";
+            finalData.push([canteado, referencia, material, grueso, largo, ancho, unidades]);
+          }
+        });
+
+        // Convertir a hoja
+        const ws = XLSX.utils.aoa_to_sheet(finalData);
+        // Ajustar rango
+        ws["!ref"] = XLSX.utils.encode_range({
+          s: { c: 0, r: 0 },
+          e: { c: 6, r: finalData.length - 1 }
+        });
+
+        // Aplicar estilo a Excel
+        applyExcelStyles(ws, finalData.length);
+
+        // Agregar hoja
+        XLSX.utils.book_append_sheet(wb, ws, "Pedido");
+
+        // Nombre de archivo
+        const fileName = `${tipo.replace(/\s+/g, "_")}_${nombre.replace(/\s+/g, "_")}_${formattedDate.replace(/\//g, "-")}.xlsx`;
+        XLSX.writeFile(wb, fileName, { bookType: "xlsx" });
+
+        alert("Archivo Excel generado correctamente.");
+      });
+
+      function applyExcelStyles(ws, totalRows) {
+        const range = XLSX.utils.decode_range(ws["!ref"]);
+        for (let R = range.s.r; R <= range.e.r; R++) {
+          for (let C = range.s.c; C <= range.e.c; C++) {
+            const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+            const cell = ws[cellRef];
+            if (!cell) continue;
+            cell.s = cell.s || {};
+
+            // Bordes finos
+            cell.s.border = {
+              top:    { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left:   { style: "thin", color: { rgb: "000000" } },
+              right:  { style: "thin", color: { rgb: "000000" } },
+            };
+
+            // Encabezado
+            if (R === 0 || R === 7) {
+              cell.s.font = { bold: true };
+              cell.s.alignment = { horizontal: "center", vertical: "center" };
+            } else {
+              cell.s.alignment = { vertical: "center" };
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
