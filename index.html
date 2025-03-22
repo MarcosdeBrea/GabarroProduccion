@@ -201,15 +201,14 @@
     /* Botones principales */
     .buttons-wrapper {
       display: flex;
-      align-items: flex-start;
-      gap: 30px;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 20px;
     }
 
     .buttons-row {
       display: flex;
       gap: 10px;
-      align-items: center;
     }
 
     .add-row,
@@ -323,14 +322,7 @@
       }
 
       .buttons-row {
-        flex-direction: column;
-        width: 100%;
-      }
-
-      .add-row, .clear-table, .submit-btn {
-        width: 100%;
-        padding: 12px 10px;
-        font-size: 15px;
+        flex-direction: row;
       }
 
       .leyenda {
@@ -372,11 +364,6 @@
       td input, td select {
         padding: 6px;
         font-size: 12px;
-      }
-
-      .add-row, .clear-table, .submit-btn {
-        padding: 10px 8px;
-        font-size: 14px;
       }
     }
   </style>
@@ -505,11 +492,11 @@
 
       <!-- Botones + Leyenda -->
       <div class="buttons-wrapper">
-        <!-- Botones -->
         <div class="buttons-row">
           <button type="button" class="add-row" id="addRow">Añadir Fila</button>
           <button type="button" class="clear-table" id="clearTableBtn">Limpiar Tabla</button>
-          <button type="button" class="submit-btn" id="submitBtn">Generar y Descargar Excel</button>
+          <button type="button" class="submit-btn" id="submitBtn">Descargar</button>
+          <button type="button" class="submit-btn" id="shareBtn">Enviar</button>
         </div>
         <!-- Leyenda -->
         <div class="leyenda">
@@ -540,71 +527,23 @@
       const formattedDate = today.toLocaleDateString("es-ES");
       document.getElementById("fecha").value = formattedDate;
 
-      // Añadir fila
-      document.getElementById("addRow").addEventListener("click", function () {
-        const tableBody = document.getElementById("tableBody");
-        const newRow = document.createElement("tr");
-
-        newRow.innerHTML = `
-          <td>
-            <select name="canteado[]">
-                <option value="">-</option>
-                <option value="SIN CANTO">SIN CANTO</option>
-                <option value="1CL 1CA">1CL 1CA</option>
-                <option value="1CL 2CA">1CL 2CA</option>
-                <option value="2CL">2CL</option>
-                <option value="2CL 1CA">2CL 1CA</option>
-                <option value="1CL">1CL</option>
-                <option value="4C">4C</option>
-                <option value="1CA">1CA</option>
-                <option value="2CA">2CA</option>
-            </select>
-          </td>
-          <td><input type="text" name="referencia[]"></td>
-          <td><input type="text" name="material[]"></td>
-          <td><input type="number" name="grueso[]" min="0" max="9999"></td>
-          <td><input type="number" name="largo[]" min="0" max="9999"></td>
-          <td><input type="number" name="ancho[]" min="0" max="9999"></td>
-          <td><input type="number" name="unidades[]" min="1" max="9999" value="1"></td>
-          <td><button type="button" class="delete-row-btn">-</button></td>
-        `;
-        tableBody.appendChild(newRow);
-      });
-
-      // Borrar fila
-      document.addEventListener("click", function(e) {
-        if(e.target && e.target.classList.contains("delete-row-btn")) {
-          e.target.closest("tr").remove();
-        }
-      });
-
-      // Limpiar tabla
-      document.getElementById("clearTableBtn").addEventListener("click", function() {
-        const tableBody = document.getElementById("tableBody");
-        tableBody.innerHTML = "";
-      });
-
-      // Generar y descargar Excel
-      document.getElementById("submitBtn").addEventListener("click", function () {
+      // Función para generar el Excel y retornar { workbook, fileName }
+      function generarExcel() {
         // Validar campos obligatorios
         const nombre = document.getElementById("nombre").value.trim();
         const email = document.getElementById("email").value.trim();
         const telefono = document.getElementById("telefono").value.trim();
         const codigo = document.getElementById("codigoCliente").value.trim();
-
-        // Determinar tipo
         const tipoRadio = document.querySelector('input[name="tipoPedido"]:checked');
         const tipo = tipoRadio ? tipoRadio.value : "Pedido";
 
         if (!nombre || !email || !telefono) {
           alert("Por favor, complete los campos obligatorios: Nombre, Email y Teléfono.");
-          return;
+          return null;
         }
 
         // Crear libro de Excel
         const wb = XLSX.utils.book_new();
-
-        // Datos a volcar en la hoja
         const finalData = [];
 
         // 1) Fila con el tipo
@@ -618,9 +557,9 @@
         // Fila en blanco
         finalData.push([]);
         // Encabezado
-        finalData.push(["Canteado","Referencia","Material","Grueso","Largo (Sentido veta)","Ancho (MM)","Unidades"]);
+        finalData.push(["Canteado", "Referencia", "Material", "Grueso", "Largo (Sentido veta)", "Ancho (MM)", "Unidades"]);
 
-        // Recorrer las filas
+        // Recorrer las filas de la tabla
         const rows = document.querySelectorAll("#tableBody tr");
         rows.forEach((row) => {
           const cells = row.querySelectorAll("td");
@@ -636,31 +575,70 @@
           }
         });
 
-        // Convertir a hoja
+        // Convertir a hoja y aplicar estilos
         const ws = XLSX.utils.aoa_to_sheet(finalData);
-        // Ajustar rango
         ws["!ref"] = XLSX.utils.encode_range({
           s: { c: 0, r: 0 },
           e: { c: 6, r: finalData.length - 1 }
         });
-
-        // Aplicar estilo a Excel
         applyExcelStyles(ws, finalData.length);
-
-        // Agregar hoja
         XLSX.utils.book_append_sheet(wb, ws, "Pedido");
 
-        // Nombre de archivo
+        // Definir nombre del archivo
         const fileName = `${tipo.replace(/\s+/g, "_")}_${nombre.replace(/\s+/g, "_")}_${formattedDate.replace(/\//g, "-")}.xlsx`;
-        XLSX.writeFile(wb, fileName, { bookType: "xlsx" });
+        return { wb, fileName };
+      }
 
+      // Botón para descargar Excel
+      document.getElementById("submitBtn").addEventListener("click", function () {
+        const data = generarExcel();
+        if (!data) return;
+        XLSX.writeFile(data.wb, data.fileName, { bookType: "xlsx" });
         alert("Archivo Excel generado correctamente.");
       });
 
+      // Botón para generar, descargar y compartir el Excel
+      document.getElementById("shareBtn").addEventListener("click", function () {
+        const data = generarExcel();
+        if (!data) return;
+        // Generar el Excel como ArrayBuffer
+        const wbout = XLSX.write(data.wb, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const file = new File([blob], data.fileName, { type: blob.type });
+        
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({
+            files: [file],
+            title: "Excel generado",
+            text: "Adjunto el archivo Excel generado."
+          })
+          .then(() => {
+            alert("Archivo compartido correctamente.");
+          })
+          .catch((error) => {
+            console.error("Error compartiendo:", error);
+            alert("Error compartiendo el archivo.");
+          });
+        } else {
+          alert("La función de compartir archivos no está soportada en este dispositivo.");
+        }
+      });
+
+      // Borrar fila
+      document.addEventListener("click", function(e) {
+        if (e.target && e.target.classList.contains("delete-row-btn")) {
+          e.target.closest("tr").remove();
+        }
+      });
+
+      // Limpiar tabla
+      document.getElementById("clearTableBtn").addEventListener("click", function() {
+        document.getElementById("tableBody").innerHTML = "";
+      });
+
+      // Función para aplicar estilos a las celdas en Excel
       function applyExcelStyles(ws, totalRows) {
         const range = XLSX.utils.decode_range(ws["!ref"]);
-        
-        // Configurar anchos de columna
         ws['!cols'] = [
           { wch: 14 },  // Canteado
           { wch: 20 },  // Referencia
@@ -686,12 +664,9 @@
               right:  { style: "thin", color: { rgb: "000000" } },
             };
 
-            // Estilos para las filas de título (filas 0-5 para datos del cliente y la fila 7 para encabezados de tabla)
+            // Estilos para las filas de título (filas 0-5 y la fila 7 de encabezados)
             if (R <= 5 || R === 7) {
-              // Negrita para todos los títulos
               cell.s.font = { bold: true };
-              
-              // Color verde para las celdas de título
               if (C === 0 || R === 7) {
                 cell.s.fill = { 
                   fgColor: { rgb: "D1E7CB" },
@@ -699,14 +674,9 @@
                   patternType: "solid" 
                 };
               }
-              
-              // Alineación para títulos
               cell.s.alignment = { horizontal: "center", vertical: "center" };
             } else {
-              // Alineación para datos
               cell.s.alignment = { vertical: "center" };
-              
-              // Centrar números en columnas numéricas
               if (C >= 3) {
                 cell.s.alignment.horizontal = "center";
               }
