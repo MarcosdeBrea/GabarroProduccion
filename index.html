@@ -73,24 +73,24 @@
       color: var(--secondary-color);
     }
 
-    /* Ajuste de los radios */
+    /* Radios */
     .radios {
       display: flex;
-      flex-wrap: wrap;         /* Para que salten de línea si no cabe */
-      gap: 8px;                /* Menos espacio entre cada opción */
+      flex-wrap: wrap; /* Salto de línea si no cabe */
+      gap: 8px; /* Menos espacio entre cada opción */
       margin-bottom: 20px;
-      align-items: center;     /* Centra verticalmente los radios */
+      align-items: center;
     }
 
     .radios label {
-      display: inline-flex;    /* Radio y texto se mantienen juntos */
+      display: inline-flex;
       align-items: center;
       font-weight: bold;
       cursor: pointer;
     }
 
     .radios input[type="radio"] {
-      margin-right: 5px;       /* Pequeño espacio entre el círculo y el texto */
+      margin-right: 5px;
     }
 
     .important-note {
@@ -157,38 +157,24 @@
     th {
       background-color: var(--header-bg);
       color: var(--text-color);
-      font-weight: bold; /* Asegurar que los textos del encabezado estén en negrita */
+      font-weight: bold; /* Encabezados en negrita */
     }
 
-    /* Relación de anchos de columnas */
-    th.canteado {
-      width: 10%;
-    }
-    th.referencia {
-      width: 24%;
-    }
-    th.material {
-      width: 29%;
-    }
-    th.grueso {
-      width: 7%;
-    }
+    /* Anchos de columnas */
+    th.canteado { width: 10%; }
+    th.referencia { width: 24%; }
+    th.material { width: 29%; }
+    th.grueso { width: 7%; }
     th.largo,
-    th.ancho {
-      width: 8%;
-    }
-    th.unidades {
-      width: 8%;
-    }
-    th.delete-col {
-      width: 4%;
-    }
+    th.ancho { width: 8%; }
+    th.unidades { width: 8%; }
+    th.delete-col { width: 4%; }
 
     tr:nth-child(even) {
       background-color: var(--light-bg);
     }
 
-    /* Botón para eliminar cada fila */
+    /* Botón para eliminar filas */
     .delete-row-btn {
       background: none;
       border: none;
@@ -243,7 +229,7 @@
       border: 1px solid var(--border-color);
       padding: 15px;
       border-radius: 4px;
-      min-width: 100px; 
+      min-width: 100px;
     }
 
     .leyenda h3 {
@@ -266,7 +252,7 @@
       color: #666;
     }
 
-    /* Responsivo */
+    /* Responsivo: en pantallas medianas y móviles */
     @media (max-width: 768px) {
       .container {
         width: 98%;
@@ -296,9 +282,8 @@
         grid-template-columns: 1fr;
       }
 
-      /* Mantén el flex-wrap y reduce el gap si quieres */
       .radios {
-        gap: 8px; 
+        gap: 8px;
       }
 
       th, td {
@@ -315,14 +300,11 @@
         font-size: 14px;
       }
 
-      .buttons-wrapper {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-      }
-
+      /* En móviles, los botones se organizarán en una cuadrícula de dos columnas */
       .buttons-row {
-        flex-direction: row;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
       }
 
       .leyenda {
@@ -333,7 +315,7 @@
         font-size: 10px;
       }
 
-      /* Regla para que la tabla sea más ancha en móviles y se pueda desplazar horizontalmente */
+      /* Tabla con ancho mínimo para scroll horizontal */
       .table-container table {
         min-width: 800px;
       }
@@ -370,7 +352,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- Estructura de cabecera -->
+    <!-- Cabecera -->
     <div class="header">
       <div class="title-container">
         <h1 class="main-title">Plantilla producción</h1>
@@ -400,22 +382,18 @@
           <label for="nombre" class="required-field">Nombre:</label>
           <input type="text" id="nombre" name="nombre" required />
         </div>
-
         <div class="form-group">
           <label for="email" class="required-field">Email:</label>
           <input type="email" id="email" name="email" required />
         </div>
-
         <div class="form-group">
           <label for="codigoCliente">Código Cliente:</label>
           <input type="text" id="codigoCliente" name="codigoCliente" />
         </div>
-
         <div class="form-group">
           <label for="telefono" class="required-field">Teléfono:</label>
           <input type="tel" id="telefono" name="telefono" required />
         </div>
-
         <div class="form-group">
           <label for="fecha">Fecha:</label>
           <input type="text" id="fecha" name="fecha" readonly />
@@ -427,37 +405,32 @@
         El LARGO es siempre la primera medida, todas las medidas en MM.
       </div>
 
-      <!-- Contenedor de la tabla -->
+      <!-- Tabla -->
       <div class="table-container">
         <table id="dataTable">
           <thead>
             <tr>
               <th class="canteado">
                 Canteado
-                <br />
-                <span class="small-text">Seleccionar lados a cantear</span>
+                <br /><span class="small-text">Seleccionar lados a cantear</span>
               </th>
               <th class="referencia">
                 (Ref., pieza, zona...etc)
-                <br />
-                <span class="small-text">En etiqueta (opcional)</span>
+                <br /><span class="small-text">En etiqueta (opcional)</span>
               </th>
               <th class="material">Material</th>
               <th class="grueso">Grueso</th>
               <th class="largo">
                 Largo
-                <br />
-                <span class="small-text">Sentido veta (MM)</span>
+                <br /><span class="small-text">Sentido veta (MM)</span>
               </th>
               <th class="ancho">
                 Ancho
-                <br />
-                <span class="small-text">(MM)</span>
+                <br /><span class="small-text">(MM)</span>
               </th>
               <th class="unidades">
                 Unidades
-                <br />
-                <span class="small-text">Cantidad</span>
+                <br /><span class="small-text">Cantidad</span>
               </th>
               <th class="delete-col"></th>
             </tr>
@@ -490,7 +463,7 @@
         </table>
       </div>
 
-      <!-- Botones + Leyenda -->
+      <!-- Botones y Leyenda -->
       <div class="buttons-wrapper">
         <div class="buttons-row">
           <button type="button" class="add-row" id="addRow">Añadir Fila</button>
@@ -498,7 +471,6 @@
           <button type="button" class="submit-btn" id="submitBtn">Descargar</button>
           <button type="button" class="submit-btn" id="shareBtn">Enviar</button>
         </div>
-        <!-- Leyenda -->
         <div class="leyenda">
           <h3>Leyenda canteado</h3>
           <ul>
@@ -522,14 +494,11 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      // Establecer la fecha actual
       const today = new Date();
       const formattedDate = today.toLocaleDateString("es-ES");
       document.getElementById("fecha").value = formattedDate;
 
-      // Función para generar el Excel y retornar { workbook, fileName }
       function generarExcel() {
-        // Validar campos obligatorios
         const nombre = document.getElementById("nombre").value.trim();
         const email = document.getElementById("email").value.trim();
         const telefono = document.getElementById("telefono").value.trim();
@@ -542,24 +511,18 @@
           return null;
         }
 
-        // Crear libro de Excel
         const wb = XLSX.utils.book_new();
         const finalData = [];
 
-        // 1) Fila con el tipo
         finalData.push(["Tipo", tipo]);
-        // 2) Datos del cliente
         finalData.push(["Fecha", formattedDate]);
         finalData.push(["Nombre", nombre]);
         finalData.push(["Email", email]);
         finalData.push(["Código Cliente", codigo]);
         finalData.push(["Teléfono", telefono]);
-        // Fila en blanco
         finalData.push([]);
-        // Encabezado
         finalData.push(["Canteado", "Referencia", "Material", "Grueso", "Largo (Sentido veta)", "Ancho (MM)", "Unidades"]);
 
-        // Recorrer las filas de la tabla
         const rows = document.querySelectorAll("#tableBody tr");
         rows.forEach((row) => {
           const cells = row.querySelectorAll("td");
@@ -575,7 +538,6 @@
           }
         });
 
-        // Convertir a hoja y aplicar estilos
         const ws = XLSX.utils.aoa_to_sheet(finalData);
         ws["!ref"] = XLSX.utils.encode_range({
           s: { c: 0, r: 0 },
@@ -584,12 +546,10 @@
         applyExcelStyles(ws, finalData.length);
         XLSX.utils.book_append_sheet(wb, ws, "Pedido");
 
-        // Definir nombre del archivo
         const fileName = `${tipo.replace(/\s+/g, "_")}_${nombre.replace(/\s+/g, "_")}_${formattedDate.replace(/\//g, "-")}.xlsx`;
         return { wb, fileName };
       }
 
-      // Botón para descargar Excel
       document.getElementById("submitBtn").addEventListener("click", function () {
         const data = generarExcel();
         if (!data) return;
@@ -597,11 +557,9 @@
         alert("Archivo Excel generado correctamente.");
       });
 
-      // Botón para generar, descargar y compartir el Excel
       document.getElementById("shareBtn").addEventListener("click", function () {
         const data = generarExcel();
         if (!data) return;
-        // Generar el Excel como ArrayBuffer
         const wbout = XLSX.write(data.wb, { bookType: "xlsx", type: "array" });
         const blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
         const file = new File([blob], data.fileName, { type: blob.type });
@@ -624,29 +582,26 @@
         }
       });
 
-      // Borrar fila
       document.addEventListener("click", function(e) {
         if (e.target && e.target.classList.contains("delete-row-btn")) {
           e.target.closest("tr").remove();
         }
       });
 
-      // Limpiar tabla
       document.getElementById("clearTableBtn").addEventListener("click", function() {
         document.getElementById("tableBody").innerHTML = "";
       });
 
-      // Función para aplicar estilos a las celdas en Excel
       function applyExcelStyles(ws, totalRows) {
         const range = XLSX.utils.decode_range(ws["!ref"]);
         ws['!cols'] = [
-          { wch: 14 },  // Canteado
-          { wch: 20 },  // Referencia
-          { wch: 25 },  // Material
-          { wch: 10 },  // Grueso
-          { wch: 15 },  // Largo
-          { wch: 12 },  // Ancho
-          { wch: 10 }   // Unidades
+          { wch: 14 },
+          { wch: 20 },
+          { wch: 25 },
+          { wch: 10 },
+          { wch: 15 },
+          { wch: 12 },
+          { wch: 10 }
         ];
         
         for (let R = range.s.r; R <= range.e.r; R++) {
@@ -655,23 +610,20 @@
             const cell = ws[cellRef];
             if (!cell) continue;
             cell.s = cell.s || {};
-
-            // Bordes finos para todas las celdas
             cell.s.border = {
-              top:    { style: "thin", color: { rgb: "000000" } },
+              top: { style: "thin", color: { rgb: "000000" } },
               bottom: { style: "thin", color: { rgb: "000000" } },
-              left:   { style: "thin", color: { rgb: "000000" } },
-              right:  { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } },
             };
 
-            // Estilos para las filas de título (filas 0-5 y la fila 7 de encabezados)
             if (R <= 5 || R === 7) {
               cell.s.font = { bold: true };
               if (C === 0 || R === 7) {
                 cell.s.fill = { 
                   fgColor: { rgb: "D1E7CB" },
-                  type: "pattern", 
-                  patternType: "solid" 
+                  type: "pattern",
+                  patternType: "solid"
                 };
               }
               cell.s.alignment = { horizontal: "center", vertical: "center" };
