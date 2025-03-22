@@ -26,49 +26,42 @@
     body {
       background-color: var(--light-bg);
       color: var(--text-color);
-      padding: 5px; /* Borde mínimo en el body */
+      padding: 5px;
     }
 
     .container {
-      width: 98%; /* Aprovecha 98% de pantalla */
+      width: 98%;
       margin: 0 auto;
       background-color: white;
-      padding: 5px; /* Reducir padding interno */
-      border-radius: 5px; /* Borde mínimo */
+      padding: 5px;
+      border-radius: 5px;
     }
 
-    /* Cabecera con flex */
+    /* Cabecera */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 15px;
     }
-
-    /* Título a la izquierda */
     .title-container {
       display: flex;
       align-items: center;
     }
-
     .main-title {
       font-size: 1.5rem;
       font-weight: bold;
       color: var(--primary-color);
     }
-
-    /* Logo a la derecha */
     .logo-container {
       text-align: right;
     }
-
     .logo-text {
       font-size: 1.8rem;
       font-weight: bold;
       color: var(--text-color);
       margin-bottom: 5px;
     }
-
     .website {
       color: var(--secondary-color);
     }
@@ -76,19 +69,17 @@
     /* Radios */
     .radios {
       display: flex;
-      flex-wrap: wrap; /* Salto de línea si no cabe */
-      gap: 8px; /* Menos espacio entre cada opción */
+      flex-wrap: wrap;
+      gap: 8px;
       margin-bottom: 20px;
       align-items: center;
     }
-
     .radios label {
       display: inline-flex;
       align-items: center;
       font-weight: bold;
       cursor: pointer;
     }
-
     .radios input[type="radio"] {
       margin-right: 5px;
     }
@@ -109,23 +100,19 @@
       background-color: var(--light-bg);
       border-radius: 5px;
     }
-
     .form-group {
       margin-bottom: 15px;
     }
-
     .required-field::after {
       content: "*";
       color: var(--red-text);
       margin-left: 4px;
     }
-
     label {
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
     }
-
     input,
     select {
       width: 100%;
@@ -139,13 +126,11 @@
       overflow-x: auto;
       margin-bottom: 20px;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 20px;
     }
-
     th,
     td {
       border: 1px solid var(--border-color);
@@ -153,13 +138,11 @@
       text-align: center;
       vertical-align: middle;
     }
-
     th {
       background-color: var(--header-bg);
       color: var(--text-color);
-      font-weight: bold; /* Encabezados en negrita */
+      font-weight: bold;
     }
-
     /* Anchos de columnas */
     th.canteado { width: 10%; }
     th.referencia { width: 24%; }
@@ -187,16 +170,14 @@
     /* Botones principales */
     .buttons-wrapper {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
       margin-bottom: 20px;
     }
-
     .buttons-row {
       display: flex;
       gap: 10px;
     }
-
     .add-row,
     .clear-table,
     .submit-btn {
@@ -215,31 +196,24 @@
       background-color: var(--secondary-color);
     }
 
-    .footer {
-      text-align: center;
-      margin-top: 20px;
-      color: #777;
-      font-size: 14px;
-    }
-
+    /* Leyenda centrada debajo de los botones */
     .leyenda {
-      display: inline-block;
-      width: auto;
+      display: block;
+      margin: 20px auto 0;
+      text-align: center;
       background-color: #f9f9f9;
       border: 1px solid var(--border-color);
       padding: 15px;
       border-radius: 4px;
-      min-width: 100px;
+      max-width: 600px;
     }
-
     .leyenda h3 {
       margin-bottom: 10px;
       color: var(--primary-color);
     }
-
     .leyenda ul {
       list-style-type: none;
-      padding-left: 10px;
+      padding-left: 0;
     }
     .leyenda li {
       margin-bottom: 5px;
@@ -252,69 +226,54 @@
       color: #666;
     }
 
-    /* Responsivo: en pantallas medianas y móviles */
+    /* Responsivo */
     @media (max-width: 768px) {
       .container {
         width: 98%;
         padding: 5px;
       }
-
       .header {
         flex-direction: column;
         gap: 10px;
       }
-
       .title-container,
       .logo-container {
         width: 100%;
         text-align: center;
       }
-
       .main-title {
         font-size: 1.3rem;
       }
-
       .logo-text {
         font-size: 1.5rem;
       }
-
       .form-header {
         grid-template-columns: 1fr;
       }
-
       .radios {
         gap: 8px;
       }
-
       th, td {
         padding: 8px;
         font-size: 14px;
       }
-
       th .small-text {
         font-size: 10px;
       }
-
       td input, td select {
         padding: 8px;
         font-size: 14px;
       }
-
-      /* En móviles, los botones se organizarán en una cuadrícula de dos columnas */
+      /* En móviles, organizar los botones en 2 filas de 2 columnas */
       .buttons-row {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
+        width: 100%;
       }
-
       .leyenda {
         width: 100%;
       }
-
-      .leyenda li {
-        font-size: 10px;
-      }
-
       /* Tabla con ancho mínimo para scroll horizontal */
       .table-container table {
         min-width: 800px;
@@ -325,24 +284,19 @@
       body {
         padding: 5px;
       }
-
       .container {
         padding: 5px;
       }
-
       .main-title {
         font-size: 1.2rem;
       }
-
       .logo-text {
         font-size: 1.4rem;
       }
-
       th, td {
         padding: 6px;
         font-size: 12px;
       }
-
       td input, td select {
         padding: 6px;
         font-size: 12px;
@@ -411,26 +365,21 @@
           <thead>
             <tr>
               <th class="canteado">
-                Canteado
-                <br /><span class="small-text">Seleccionar lados a cantear</span>
+                Canteado<br /><span class="small-text">Seleccionar lados a cantear</span>
               </th>
               <th class="referencia">
-                (Ref., pieza, zona...etc)
-                <br /><span class="small-text">En etiqueta (opcional)</span>
+                (Ref., pieza, zona...etc)<br /><span class="small-text">En etiqueta (opcional)</span>
               </th>
               <th class="material">Material</th>
               <th class="grueso">Grueso</th>
               <th class="largo">
-                Largo
-                <br /><span class="small-text">Sentido veta (MM)</span>
+                Largo<br /><span class="small-text">Sentido veta (MM)</span>
               </th>
               <th class="ancho">
-                Ancho
-                <br /><span class="small-text">(MM)</span>
+                Ancho<br /><span class="small-text">(MM)</span>
               </th>
               <th class="unidades">
-                Unidades
-                <br /><span class="small-text">Cantidad</span>
+                Unidades<br /><span class="small-text">Cantidad</span>
               </th>
               <th class="delete-col"></th>
             </tr>
@@ -513,7 +462,6 @@
 
         const wb = XLSX.utils.book_new();
         const finalData = [];
-
         finalData.push(["Tipo", tipo]);
         finalData.push(["Fecha", formattedDate]);
         finalData.push(["Nombre", nombre]);
