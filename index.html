@@ -84,6 +84,11 @@
       font-weight: bold;
       color: var(--red-text);
     }
+    /* Nota actualizada */
+    .important-note::before {
+      content: "El sentido de la veta es siempre el LARGO (la primera medida), todas las medidas en MM.";
+    }
+    /* Formulario */
     .form-header {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -114,6 +119,7 @@
       border-radius: 4px;
       font-size: 16px;
     }
+    /* Tabla */
     .table-container {
       overflow-x: auto;
       margin-bottom: 20px;
@@ -250,12 +256,16 @@
         padding: 8px;
         font-size: 14px;
       }
-      /* En móviles, organizar los botones en 2 filas de 2 columnas */
+      /* En móviles, organizar los 3 botones en 2 filas:
+         Los dos primeros en la fila superior y el tercero en la inferior ocupando el ancho completo */
       .buttons-row {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
         width: 100%;
+      }
+      .buttons-row button:nth-child(3) {
+        grid-column: span 2;
       }
       .leyenda {
         width: 100%;
@@ -336,9 +346,7 @@
         </div>
       </div>
       <!-- Nota importante -->
-      <div class="important-note">
-        El LARGO es siempre la primera medida, todas las medidas en MM.
-      </div>
+      <div class="important-note"></div>
       <!-- Tabla -->
       <div class="table-container">
         <table id="dataTable">
@@ -397,7 +405,6 @@
           <button type="button" class="add-row" id="addRow">Añadir Fila</button>
           <button type="button" class="clear-table" id="clearTableBtn">Limpiar Tabla</button>
           <button type="button" class="submit-btn" id="submitBtn">Descargar</button>
-          <button type="button" class="submit-btn" id="shareBtn">Enviar</button>
         </div>
         <div class="leyenda">
           <h3>Leyenda canteado</h3>
@@ -424,7 +431,7 @@
       const today = new Date();
       const formattedDate = today.toLocaleDateString("es-ES");
       document.getElementById("fecha").value = formattedDate;
-
+      
       // Función para generar el Excel
       function generarExcel() {
         const nombre = document.getElementById("nombre").value.trim();
@@ -433,12 +440,10 @@
         const codigo = document.getElementById("codigoCliente").value.trim();
         const tipoRadio = document.querySelector('input[name="tipoPedido"]:checked');
         const tipo = tipoRadio ? tipoRadio.value : "Pedido";
-
         if (!nombre || !email || !telefono) {
           alert("Por favor, complete los campos obligatorios: Nombre, Email y Teléfono.");
           return null;
         }
-
         const wb = XLSX.utils.book_new();
         const finalData = [];
         finalData.push(["Tipo", tipo]);
@@ -449,7 +454,6 @@
         finalData.push(["Teléfono", telefono]);
         finalData.push([]); // Fila en blanco
         finalData.push(["Canteado", "Referencia", "Material", "Grueso", "Largo (Sentido veta)", "Ancho (MM)", "Unidades"]);
-
         const rows = document.querySelectorAll("#tableBody tr");
         rows.forEach((row) => {
           const cells = row.querySelectorAll("td");
@@ -464,7 +468,6 @@
             finalData.push([canteado, referencia, material, grueso, largo, ancho, unidades]);
           }
         });
-
         const ws = XLSX.utils.aoa_to_sheet(finalData);
         ws["!ref"] = XLSX.utils.encode_range({
           s: { c: 0, r: 0 },
@@ -472,11 +475,10 @@
         });
         applyExcelStyles(ws, finalData.length);
         XLSX.utils.book_append_sheet(wb, ws, "Pedido");
-
         const fileName = `${tipo.replace(/\s+/g, "_")}_${nombre.replace(/\s+/g, "_")}_${formattedDate.replace(/\//g, "-")}.xlsx`;
         return { wb, fileName };
       }
-
+      
       // Botón "Descargar"
       document.getElementById("submitBtn").addEventListener("click", function () {
         const data = generarExcel();
@@ -484,41 +486,7 @@
         XLSX.writeFile(data.wb, data.fileName, { bookType: "xlsx" });
         alert("Archivo Excel generado correctamente.");
       });
-
-      // Botón "Enviar" con intento de abrir el cliente de correo o compartir vía Web Share API
-      document.getElementById("shareBtn").addEventListener("click", function () {
-        const data = generarExcel();
-        if (!data) return;
-        const wbout = XLSX.write(data.wb, { bookType: "xlsx", type: "array" });
-        const blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-        const file = new File([blob], data.fileName, { type: blob.type });
-        const tipo = document.querySelector('input[name="tipoPedido"]:checked').value;
-        const mensaje = `Buenos días\n\nSolicito ${tipo} de mecanización del archivo adjunto.`;
-        
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          // Si el navegador soporta compartir archivos, se usa la Web Share API
-          navigator.share({
-            files: [file],
-            title: "Excel generado",
-            text: mensaje
-          })
-          .then(() => {
-            alert("Archivo compartido correctamente.");
-          })
-          .catch((error) => {
-            console.error("Error compartiendo:", error);
-            alert("Error compartiendo el archivo.");
-          });
-        } else {
-          // Fallback: abrir mailto con asunto y cuerpo predefinido y forzar la descarga del Excel
-          const subject = `Excel generado - ${tipo}`;
-          const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mensaje)}`;
-          alert("Tu dispositivo no soporta compartir archivos directamente. Se abrirá tu cliente de correo. Por favor, adjunta manualmente el archivo descargado.");
-          XLSX.writeFile(data.wb, data.fileName, { bookType: "xlsx" });
-          window.location.href = mailtoLink;
-        }
-      });
-
+      
       // Botón "Añadir Fila"
       document.getElementById("addRow").addEventListener("click", function () {
         const tableBody = document.getElementById("tableBody");
@@ -548,19 +516,45 @@
         `;
         tableBody.appendChild(newRow);
       });
-
-      // Delegación para eliminar filas
+      
+      // Delegación para borrar filas
       document.addEventListener("click", function(e) {
         if (e.target && e.target.classList.contains("delete-row-btn")) {
           e.target.closest("tr").remove();
         }
       });
-
-      // Botón "Limpiar Tabla"
+      
+      // Botón "Limpiar Tabla": borra todas las filas y deja una fila vacía
       document.getElementById("clearTableBtn").addEventListener("click", function() {
-        document.getElementById("tableBody").innerHTML = "";
+        const tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+        const newRow = document.createElement("tr");
+        newRow.innerHTML = `
+          <td>
+            <select name="canteado[]">
+              <option value="">-</option>
+              <option value="SIN CANTO">SIN CANTO</option>
+              <option value="1CL 1CA">1CL 1CA</option>
+              <option value="1CL 2CA">1CL 2CA</option>
+              <option value="2CL">2CL</option>
+              <option value="2CL 1CA">2CL 1CA</option>
+              <option value="1CL">1CL</option>
+              <option value="4C">4C</option>
+              <option value="1CA">1CA</option>
+              <option value="2CA">2CA</option>
+            </select>
+          </td>
+          <td><input type="text" name="referencia[]" /></td>
+          <td><input type="text" name="material[]" /></td>
+          <td><input type="number" name="grueso[]" min="0" max="9999" /></td>
+          <td><input type="number" name="largo[]" min="0" max="9999" /></td>
+          <td><input type="number" name="ancho[]" min="0" max="9999" /></td>
+          <td><input type="number" name="unidades[]" min="1" max="9999" value="1" /></td>
+          <td><button type="button" class="delete-row-btn">-</button></td>
+        `;
+        tableBody.appendChild(newRow);
       });
-
+      
       // Función para aplicar estilos a las celdas en Excel
       function applyExcelStyles(ws, totalRows) {
         const range = XLSX.utils.decode_range(ws["!ref"]);
