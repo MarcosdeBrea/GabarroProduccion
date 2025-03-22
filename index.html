@@ -157,6 +157,7 @@
     th {
       background-color: var(--header-bg);
       color: var(--text-color);
+      font-weight: bold; /* Asegurar que los textos del encabezado estén en negrita */
     }
 
     /* Relación de anchos de columnas */
@@ -338,6 +339,11 @@
 
       .leyenda li {
         font-size: 10px;
+      }
+
+      /* Regla para que la tabla sea más ancha en móviles y se pueda desplazar horizontalmente */
+      .table-container table {
+        min-width: 800px;
       }
     }
 
@@ -688,7 +694,7 @@
               // Color verde para las celdas de título
               if (C === 0 || R === 7) {
                 cell.s.fill = { 
-                  fgColor: { rgb: "D1E7CB" },  // Color verde claro que coincide con --header-bg
+                  fgColor: { rgb: "D1E7CB" },
                   type: "pattern", 
                   patternType: "solid" 
                 };
@@ -700,8 +706,8 @@
               // Alineación para datos
               cell.s.alignment = { vertical: "center" };
               
-              // Centrar números
-              if (C >= 3) { // Columnas numéricas (grueso, largo, ancho, unidades)
+              // Centrar números en columnas numéricas
+              if (C >= 3) {
                 cell.s.alignment.horizontal = "center";
               }
             }
