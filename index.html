@@ -274,7 +274,6 @@
       .leyenda {
         width: 100%;
       }
-      /* Tabla con ancho mínimo para scroll horizontal */
       .table-container table {
         min-width: 800px;
       }
@@ -443,10 +442,12 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      // Establecer la fecha actual
       const today = new Date();
       const formattedDate = today.toLocaleDateString("es-ES");
       document.getElementById("fecha").value = formattedDate;
 
+      // Función para generar el Excel
       function generarExcel() {
         const nombre = document.getElementById("nombre").value.trim();
         const email = document.getElementById("email").value.trim();
@@ -460,6 +461,7 @@
           return null;
         }
 
+        // Crear el libro de Excel y los datos a volcar
         const wb = XLSX.utils.book_new();
         const finalData = [];
         finalData.push(["Tipo", tipo]);
@@ -468,9 +470,10 @@
         finalData.push(["Email", email]);
         finalData.push(["Código Cliente", codigo]);
         finalData.push(["Teléfono", telefono]);
-        finalData.push([]);
+        finalData.push([]); // Fila en blanco
         finalData.push(["Canteado", "Referencia", "Material", "Grueso", "Largo (Sentido veta)", "Ancho (MM)", "Unidades"]);
 
+        // Recorrer las filas de la tabla
         const rows = document.querySelectorAll("#tableBody tr");
         rows.forEach((row) => {
           const cells = row.querySelectorAll("td");
@@ -486,6 +489,7 @@
           }
         });
 
+        // Convertir datos a hoja y aplicar estilos
         const ws = XLSX.utils.aoa_to_sheet(finalData);
         ws["!ref"] = XLSX.utils.encode_range({
           s: { c: 0, r: 0 },
@@ -498,6 +502,7 @@
         return { wb, fileName };
       }
 
+      // Botón "Descargar"
       document.getElementById("submitBtn").addEventListener("click", function () {
         const data = generarExcel();
         if (!data) return;
@@ -505,6 +510,7 @@
         alert("Archivo Excel generado correctamente.");
       });
 
+      // Botón "Enviar" con fallback
       document.getElementById("shareBtn").addEventListener("click", function () {
         const data = generarExcel();
         if (!data) return;
@@ -526,20 +532,54 @@
             alert("Error compartiendo el archivo.");
           });
         } else {
-          alert("La función de compartir archivos no está soportada en este dispositivo.");
+          alert("Tu dispositivo no soporta compartir archivos directamente. El archivo se descargará para que lo envíes manualmente.");
+          XLSX.writeFile(data.wb, data.fileName, { bookType: "xlsx" });
         }
       });
 
+      // Botón "Añadir Fila"
+      document.getElementById("addRow").addEventListener("click", function () {
+        const tableBody = document.getElementById("tableBody");
+        const newRow = document.createElement("tr");
+        newRow.innerHTML = `
+          <td>
+            <select name="canteado[]">
+              <option value="">-</option>
+              <option value="SIN CANTO">SIN CANTO</option>
+              <option value="1CL 1CA">1CL 1CA</option>
+              <option value="1CL 2CA">1CL 2CA</option>
+              <option value="2CL">2CL</option>
+              <option value="2CL 1CA">2CL 1CA</option>
+              <option value="1CL">1CL</option>
+              <option value="4C">4C</option>
+              <option value="1CA">1CA</option>
+              <option value="2CA">2CA</option>
+            </select>
+          </td>
+          <td><input type="text" name="referencia[]" /></td>
+          <td><input type="text" name="material[]" /></td>
+          <td><input type="number" name="grueso[]" min="0" max="9999" /></td>
+          <td><input type="number" name="largo[]" min="0" max="9999" /></td>
+          <td><input type="number" name="ancho[]" min="0" max="9999" /></td>
+          <td><input type="number" name="unidades[]" min="1" max="9999" value="1" /></td>
+          <td><button type="button" class="delete-row-btn">-</button></td>
+        `;
+        tableBody.appendChild(newRow);
+      });
+
+      // Borrar fila (delegación de eventos)
       document.addEventListener("click", function(e) {
         if (e.target && e.target.classList.contains("delete-row-btn")) {
           e.target.closest("tr").remove();
         }
       });
 
+      // Limpiar tabla
       document.getElementById("clearTableBtn").addEventListener("click", function() {
         document.getElementById("tableBody").innerHTML = "";
       });
 
+      // Función para aplicar estilos a las celdas en Excel
       function applyExcelStyles(ws, totalRows) {
         const range = XLSX.utils.decode_range(ws["!ref"]);
         ws['!cols'] = [
@@ -562,9 +602,8 @@
               top: { style: "thin", color: { rgb: "000000" } },
               bottom: { style: "thin", color: { rgb: "000000" } },
               left: { style: "thin", color: { rgb: "000000" } },
-              right: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
             };
-
             if (R <= 5 || R === 7) {
               cell.s.font = { bold: true };
               if (C === 0 || R === 7) {
