@@ -15,20 +15,17 @@
       --header-bg: #D1E7CB;
       --red-text: #CC0000;
     }
-
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-
     body {
       background-color: var(--light-bg);
       color: var(--text-color);
       padding: 5px;
     }
-
     .container {
       width: 98%;
       margin: 0 auto;
@@ -36,7 +33,6 @@
       padding: 5px;
       border-radius: 5px;
     }
-
     /* Cabecera */
     .header {
       display: flex;
@@ -65,7 +61,6 @@
     .website {
       color: var(--secondary-color);
     }
-
     /* Radios */
     .radios {
       display: flex;
@@ -83,14 +78,12 @@
     .radios input[type="radio"] {
       margin-right: 5px;
     }
-
     .important-note {
       text-align: center;
       margin: 15px 0;
       font-weight: bold;
       color: var(--red-text);
     }
-
     .form-header {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -121,7 +114,6 @@
       border-radius: 4px;
       font-size: 16px;
     }
-
     .table-container {
       overflow-x: auto;
       margin-bottom: 20px;
@@ -152,11 +144,9 @@
     th.ancho { width: 8%; }
     th.unidades { width: 8%; }
     th.delete-col { width: 4%; }
-
     tr:nth-child(even) {
       background-color: var(--light-bg);
     }
-
     /* Botón para eliminar filas */
     .delete-row-btn {
       background: none;
@@ -166,7 +156,6 @@
       color: var(--red-text);
       cursor: pointer;
     }
-
     /* Botones principales */
     .buttons-wrapper {
       display: flex;
@@ -195,7 +184,6 @@
     .submit-btn:hover {
       background-color: var(--secondary-color);
     }
-
     /* Leyenda centrada debajo de los botones */
     .leyenda {
       display: block;
@@ -219,13 +207,11 @@
       margin-bottom: 5px;
       font-size: 8px;
     }
-
     .small-text {
       font-size: 12px;
       font-style: italic;
       color: #666;
     }
-
     /* Responsivo */
     @media (max-width: 768px) {
       .container {
@@ -278,7 +264,6 @@
         min-width: 800px;
       }
     }
-
     @media (max-width: 480px) {
       body {
         padding: 5px;
@@ -315,7 +300,6 @@
         <div class="website">www.gabarro.com</div>
       </div>
     </div>
-
     <!-- Radios -->
     <div class="radios">
       <label>
@@ -327,7 +311,6 @@
         Presupuesto
       </label>
     </div>
-
     <form id="corteForm">
       <!-- Datos del cliente -->
       <div class="form-header">
@@ -352,12 +335,10 @@
           <input type="text" id="fecha" name="fecha" readonly />
         </div>
       </div>
-
       <!-- Nota importante -->
       <div class="important-note">
         El LARGO es siempre la primera medida, todas las medidas en MM.
       </div>
-
       <!-- Tabla -->
       <div class="table-container">
         <table id="dataTable">
@@ -410,7 +391,6 @@
           </tbody>
         </table>
       </div>
-
       <!-- Botones y Leyenda -->
       <div class="buttons-wrapper">
         <div class="buttons-row">
@@ -435,11 +415,9 @@
       </div>
     </form>
   </div>
-
   <div class="footer">
     <p>Copyright © 2023 Gabarró. Todos los derechos reservados.</p>
   </div>
-
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       // Establecer la fecha actual
@@ -461,7 +439,6 @@
           return null;
         }
 
-        // Crear el libro de Excel y los datos a volcar
         const wb = XLSX.utils.book_new();
         const finalData = [];
         finalData.push(["Tipo", tipo]);
@@ -473,7 +450,6 @@
         finalData.push([]); // Fila en blanco
         finalData.push(["Canteado", "Referencia", "Material", "Grueso", "Largo (Sentido veta)", "Ancho (MM)", "Unidades"]);
 
-        // Recorrer las filas de la tabla
         const rows = document.querySelectorAll("#tableBody tr");
         rows.forEach((row) => {
           const cells = row.querySelectorAll("td");
@@ -489,7 +465,6 @@
           }
         });
 
-        // Convertir datos a hoja y aplicar estilos
         const ws = XLSX.utils.aoa_to_sheet(finalData);
         ws["!ref"] = XLSX.utils.encode_range({
           s: { c: 0, r: 0 },
@@ -510,19 +485,22 @@
         alert("Archivo Excel generado correctamente.");
       });
 
-      // Botón "Enviar" con fallback
+      // Botón "Enviar" con intento de abrir el cliente de correo o compartir vía Web Share API
       document.getElementById("shareBtn").addEventListener("click", function () {
         const data = generarExcel();
         if (!data) return;
         const wbout = XLSX.write(data.wb, { bookType: "xlsx", type: "array" });
         const blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
         const file = new File([blob], data.fileName, { type: blob.type });
+        const tipo = document.querySelector('input[name="tipoPedido"]:checked').value;
+        const mensaje = `Buenos días\n\nSolicito ${tipo} de mecanización del archivo adjunto.`;
         
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          // Si el navegador soporta compartir archivos, se usa la Web Share API
           navigator.share({
             files: [file],
             title: "Excel generado",
-            text: "Adjunto el archivo Excel generado."
+            text: mensaje
           })
           .then(() => {
             alert("Archivo compartido correctamente.");
@@ -532,8 +510,12 @@
             alert("Error compartiendo el archivo.");
           });
         } else {
-          alert("Tu dispositivo no soporta compartir archivos directamente. El archivo se descargará para que lo envíes manualmente.");
+          // Fallback: abrir mailto con asunto y cuerpo predefinido y forzar la descarga del Excel
+          const subject = `Excel generado - ${tipo}`;
+          const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mensaje)}`;
+          alert("Tu dispositivo no soporta compartir archivos directamente. Se abrirá tu cliente de correo. Por favor, adjunta manualmente el archivo descargado.");
           XLSX.writeFile(data.wb, data.fileName, { bookType: "xlsx" });
+          window.location.href = mailtoLink;
         }
       });
 
@@ -567,14 +549,14 @@
         tableBody.appendChild(newRow);
       });
 
-      // Borrar fila (delegación de eventos)
+      // Delegación para eliminar filas
       document.addEventListener("click", function(e) {
         if (e.target && e.target.classList.contains("delete-row-btn")) {
           e.target.closest("tr").remove();
         }
       });
 
-      // Limpiar tabla
+      // Botón "Limpiar Tabla"
       document.getElementById("clearTableBtn").addEventListener("click", function() {
         document.getElementById("tableBody").innerHTML = "";
       });
@@ -591,7 +573,6 @@
           { wch: 12 },
           { wch: 10 }
         ];
-        
         for (let R = range.s.r; R <= range.e.r; R++) {
           for (let C = range.s.c; C <= range.e.c; C++) {
             const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
